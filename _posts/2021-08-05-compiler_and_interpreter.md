@@ -79,10 +79,10 @@ int main()
 ![asdf](lexer.PNG)
 
 파서 : 언어의 문법을 나타내는 패턴을 파악하여 소스코드를 AST(Abstract Syntax Tree - 추상 구문 트리)로 변환한다.
-<img src="./parser.PNG" width="600px" height="300px" title="parser"/>
+![asdf](parser.PNG)
 
 제너레이터 : AST를 목표 언어의 문법(어셈블러)으로 변환한다.
-<img src="./generator.PNG" width="600px" height="300px" title="generator"/>
+![asdf](generator.PNG)
 
     $ /usr/lib/gcc/x86_64-linux-gnu/7/cc1 -fpreprocessed main.i -quiet -dumpbase main.c -mtune=generic -march=x86-64 -auxbase main -version -fstack-protector-strong -Wformat -Wformat-security -o main.s
 
@@ -186,7 +186,7 @@ Disassembly of section .text:
     5. 컨트롤 유닛이 해석이 끝난 명령어 A를 ALU에 연산시킴 [Execution]
 
     
-<img src="./run_time.PNG" width="500px" height="400px" title="lexer"/>
+![asdf](run_time.PNG)
 
 <br/>
 <br/>

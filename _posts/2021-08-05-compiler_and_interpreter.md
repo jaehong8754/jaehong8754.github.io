@@ -76,7 +76,7 @@ int main()
 컴파일러 안에는 렉서, 파서, 제너레이터가 포함되어있다.
 
 렉서 : 소스코드를 토큰 단위로 나뉘어 파서로 보낸다.
-<img data-action="zoom" src='{{ "lexer.PNG" | relative_url }}' alt='relative'>
+![asdf](./lexer.PNG)
 
 파서 : 언어의 문법을 나타내는 패턴을 파악하여 소스코드를 AST(Abstract Syntax Tree - 추상 구문 트리)로 변환한다.
 <img src="./parser.PNG" width="600px" height="300px" title="parser"/>

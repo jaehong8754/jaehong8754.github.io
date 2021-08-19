@@ -106,7 +106,7 @@ hello_world
 
 **3. 인터프리터 과정**
 
-<img src="./python_interpreter.PNG" width="500px" height="400px" title="python_interpreter"/>
+<img src="./python_interpreter.PNG" width="700px" height="400px" title="python_interpreter"/>
 
 </br></br>
 

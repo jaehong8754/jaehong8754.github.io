@@ -6,12 +6,12 @@ title:  "메모리 구조"
 # 메모리 구조
 
 <figure>
- <img src="memory_opcode.png" width="500px" height="400px" title="memory_opcode" alt="creating a new branch on GitHub" />
+ <img src="/_posts/memory_opcode.png" width="500px" height="400px" title="memory_opcode" alt="creating a new branch on GitHub" />
 </figure>
 
 
 
-sdf123
+12sdf123
 32bit OS에서 ram 4GB 이상 사용할수없다. 그 이유는 2<sup>32</sup> 가 4GB이기 때문이다.
 
 하나의 명령어 OPCODE 크기가 32bit이므로 한번에 송수신 가능한 데이터 크기가 32bit이다.

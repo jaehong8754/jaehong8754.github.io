@@ -5,7 +5,7 @@ title:  "메모리 구조"
 
 # 메모리 구조
 
-<img src="./memory_opcode.PNG" width="500px" height="400px" title="memory_opcode"/>
+<img src="memory_opcode.PNG" width="500px" height="400px" title="memory_opcode"/>
 
 
 

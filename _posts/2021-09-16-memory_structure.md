@@ -1,66 +1,305 @@
 ---
 layout: single
-title:  "메모리 구조"
+title:  "[python3]병렬처리"
 ---
 
-# 메모리 구조
+# 파이썬에서 병렬처리
 
-<img src="./memory_opcode.PNG" width="500px" height="400px" title="memory_opcode"/>
+## 병렬처리를 사용하는 이유는 BLOCKING I/O와 동기
 
-</br>
+## 먼저 C언어의 싱글스레드 처리와 멀티스레드 처리로 얻는 이득
 
-32bit OS에서 ram 4GB 이상 사용할수없다. 그 이유는 2<sup>32</sup> 가 4GB이기 때문이다.
 
-</br>
+## 1. c언어 싱글스레드
+```c
+#include <stdio.h>
+#include <sys/time.h>
+ 
+ 
+int main()
+{
+    int count = 1000000000;
 
-하나의 명령어 OPCODE 크기가 32bit이므로 한번에 송수신 가능한 데이터 크기가 32bit이다.
+    struct timeval before_pnc, after_pnc;
+    gettimeofday(&before_pnc, NULL);    
 
-32bit에서 포인터 크기는 32bit, 64bit에서 포인터 크기는 64bit이다.
+    int i = 0;
+    while (i < count*2)
+    {
+        i++;        
+    }
+    
+    printf("count : %d\n", i);
 
-입출력 버스와 버스 인터페이스 크기 또한 32bit이다.
+    gettimeofday(&after_pnc, NULL);    
+    
+    if(after_pnc.tv_usec-before_pnc.tv_usec > 0)
+        printf("running time[sec.usec] : %ld.%ld\n", (after_pnc.tv_sec-before_pnc.tv_sec), (after_pnc.tv_usec-before_pnc.tv_usec));
+    else
+        printf("running time[sec.usec] : %ld.%ld\n", (after_pnc.tv_sec-before_pnc.tv_sec)-1, (after_pnc.tv_usec-before_pnc.tv_usec)+1000000);
 
-</br></br>
+    return 0;
+}
+```    
+    count : 2000000000
+    running time[sec.usec] : 4.680431
 
-<img src="./memory_structure.PNG" width="400px" height="400px" title="memory_structure"/>
+> 메인 스레드 1개로 2000000000 카운트하는데 걸리는 시간은 4.6초
 
-</br>
+---
+<br/>
 
-텍스트(code) 영역
+## 2. c언어 멀티스레드
+```c
+#include <pthread.h>
+#include <stdio.h>
+#include <sys/time.h>
+ 
+void* thread_function(void* arg)
+{
+    int i=0;    
+    while (i<(int*)arg)
+    {
+        i++;        
+    }
 
-메모리의 코드(code) 영역은 실행할 프로그램의 코드가 저장되는 영역으로 텍스트(code) 영역(함수명, if, while, switch 등...)
+    return (void*)(i);
+}
+ 
+int main()
+{
+    pthread_t p_thread1;
+    pthread_t p_thread2;
+ 
+    int count = 1000000000;
 
-CPU는 코드 영역에 저장된 명령어를 하나씩 가져가서 처리하게 됩니다.
+    struct timeval before_pnc, after_pnc;
+    gettimeofday(&before_pnc, NULL);
 
-</br>
+    pthread_create(&p_thread1, NULL, thread_function, (void *)count); 
+    pthread_create(&p_thread2, NULL, thread_function, (void *)count);
+ 
+    int status1 = 0;
+    pthread_join(p_thread1, (void **)&status1);
+    
+    int status2 = 0;
+    pthread_join(p_thread2, (void **)&status2);
 
-데이터(data) 영역
+    printf("count : %d\n", status1 + status2);
 
-메모리의 데이터(data) 영역은 프로그램의 전역 변수와 정적(static) 변수가 저장되는 영역
+    gettimeofday(&after_pnc, NULL);    
+    
+    if(after_pnc.tv_usec-before_pnc.tv_usec > 0)
+        printf("running time[sec.usec] : %ld.%ld\n", (after_pnc.tv_sec-before_pnc.tv_sec), (after_pnc.tv_usec-before_pnc.tv_usec));
+    else
+        printf("running time[sec.usec] : %ld.%ld\n", (after_pnc.tv_sec-before_pnc.tv_sec)-1, (after_pnc.tv_usec-before_pnc.tv_usec)+1000000);
+ 
+    return 0;
+}
+```
+    count : 2000000000
+    running time[sec.usec] : 2.327120
 
-데이터 영역은 프로그램의 시작과 함께 할당되며, 프로그램이 종료되면 소멸.
+>스레드 2개로 2000000000 카운트하는데 걸리는 시간은 2.3초
 
-BSS 영역은 초기화되지 않은 전역 변수가 저장되고, Data 영역은 초기화된 전역 변수가 저장된다.
+---
+<br/>
 
-</br>
+## 3. 파이썬 싱글스레드
+```python
+import time
 
-스택(stack) 영역
+def thread_function(arg, return_data):
+    i=0
+    while i < arg:    
+        i+=1
+    return_data.append(i)
 
-메모리의 스택(stack) 영역은 함수의 호출과 관계되는 지역 변수와 매개변수가 저장되는 영역
+if __name__ == "__main__":    
+    asdf = list()
+    count = 100000000
 
-스택 영역은 함수의 호출과 함께 할당되며, 함수의 호출이 완료되면 소멸
+    start = time.time()
+        
+    thread_function(count, asdf)
+	
+    print("count : ", asdf[0])
+    print("running time[sec.usec]", time.time() - start)
+```
+    count :  200000000
+    running time[sec.usec] 10.246
 
-스택 영역에 저장되는 함수의 호출 정보는 스택 프레임(stack frame)
+>메인 스레드 1개로 200000000 카운트하는데 걸리는 시간은 10.246초
 
-LIFO, Last-In First-Out 방식
+---
+<br/>
 
-스택 영역은 메모리의 높은 주소에서 낮은 주소의 방향으로 할당
+## 4. 파이썬 멀티스레드
+```python
+import threading
+import time
 
-</br>
+def thread_function(arg, return_data):
+    i=0
+    while i < arg:    
+        i+=1
+    return_data.append(i)    
 
-힙(heap) 영역
+if __name__ == "__main__":    
+    count = 100000000
+    return_data1 = list()
+    return_data2 = list()
 
-메모리의 힙 영역은 사용자가 직접 관리할 수 있는 메모리 영역
+    start = time.time()
+    thread1 = threading.Thread(target=thread_function, args=(count, return_data1))
+    thread2 = threading.Thread(target=thread_function, args=(count, return_data2))
+    
+    thread1.start()
+    thread2.start()
 
-힙 영역은 사용자에 의해 메모리 공간이 동적으로 할당되고 해제
+    thread1.join()
+    thread2.join()
+    print("count :", return_data1[0] + return_data2[0])
+    print("running time[sec.usec]", time.time() - start)
+```
+    count : 200000000
+    running time[sec.usec] 10.045
 
-힙 영역은 메모리의 낮은 주소에서 높은 주소의 방향으로 할당
+>스레드 2개로 200000000 카운트하는데 걸리는 시간은 10.045초
+>
+>GIL(Global Interpreter Lock) 때문에 분할 처리의 경우 스레드로 얻는 시간 이득이 없다.
+
+---
+<br/>
+
+## 5. 파이썬 멀티프로세스
+```python
+import multiprocessing 
+import time
+
+def thread_function(arg, num, return_data):
+    i=0
+    while i < arg:    
+        i+=1        
+    return_data[num] = i    
+
+if __name__ == "__main__":
+    count = 100000000
+    manager = multiprocessing.Manager()
+    return_dict = manager.dict()
+
+    start = time.time()
+    p_thread1 = multiprocessing.Process(target=thread_function, args=(count, 1, return_dict))
+    p_thread2 = multiprocessing.Process(target=thread_function, args=(count, 2, return_dict))
+    
+    p_thread1.start()
+    p_thread2.start()
+
+    p_thread1.join()
+    p_thread2.join()
+
+    print("count :", return_dict.values()[0] + return_dict.values()[1])
+    print("running time[sec.usec]", time.time() - start)
+```
+    count : 200000000
+    running time[sec.usec] 5.139
+
+>스레드 2개로 200000000 카운트하는데 걸리는 시간은 5.139초
+>
+>프로세스는 GIL(Global Interpreter Lock) 영향을 받지않아 분할 처리의 경우 시간 이득이 있다.
+
+---
+<br/>
+
+## 6. 파이썬 스레드풀
+```python
+import multiprocessing 
+import time
+from functools import partial 
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+import asyncio
+import concurrent.futures
+
+def thread_function(arg):
+    i=0
+    while i < arg:    
+        i+=1
+    print(i)
+
+if __name__ == "__main__":
+    count = 100000000
+    return_data1 = list()
+    return_data2 = list()
+
+    start = time.time()
+
+    executor = ThreadPoolExecutor(max_workers=2)
+
+    lists = ['1', '2']
+    cnt = 0        
+    future_to_url = {executor.submit(thread_function, count): url for url in lists}
+    concurrent.futures.wait(future_to_url)
+    # pool.map(func, lists)
+    
+    print("asdfasdfasdf")
+    
+
+    print("time :", time.time() - start)
+
+    print(return_data1)
+    print(return_data2)
+```
+    count : 200000000
+    running time[sec.usec] 10.6674
+
+>스레드풀 생성하여 스레드 2개로 200000000 카운트하는데 걸리는 시간은 10.6674초
+>
+>GIL(Global Interpreter Lock) 때문에 분할 처리의 경우 스레드로 얻는 시간 이득이 없다.
+
+---
+<br/>
+
+## 6. 파이썬 프로세스풀
+```python
+import multiprocessing 
+import time
+from functools import partial 
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+import asyncio
+import concurrent.futures
+
+def thread_function(arg):
+    i=0
+    while i < arg:    
+        i+=1
+    print(i)
+
+if __name__ == "__main__":
+    count = 100000000
+    return_data1 = list()
+    return_data2 = list()
+
+    start = time.time()
+
+    executor = ProcessPoolExecutor(max_workers=2)
+
+    lists = ['1', '2']
+    cnt = 0        
+    future_to_url = {executor.submit(thread_function, count): url for url in lists}
+    concurrent.futures.wait(future_to_url)
+    # pool.map(func, lists)
+    
+    print("asdfasdfasdf")
+    
+
+    print("time :", time.time() - start)
+
+    print(return_data1)
+    print(return_data2)
+```
+    count : 200000000
+    running time[sec.usec] 5.339
+
+>프로세스풀 생성하여 프로세스 2개로 200000000 카운트하는데 걸리는 시간은 5.339초
+>
+>프로세스는 GIL(Global Interpreter Lock) 영향을 받지않아 분할 처리의 경우 시간 이득이 있다.

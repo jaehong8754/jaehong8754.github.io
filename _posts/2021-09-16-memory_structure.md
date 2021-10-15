@@ -6,7 +6,7 @@ title:  "메모리 구조"
 # 메모리 구조
 
 <figure>
- <img src="/_posts/memory_opcode.png" width="500px" height="400px" title="memory_opcode" alt="creating a new branch on GitHub" />
+ <img src="/assets/images/memory_opcode.png" width="500px" height="400px" title="memory_opcode" alt="creating a new branch on GitHub" />
 </figure>
 
 

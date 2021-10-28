@@ -5,7 +5,7 @@ title:  "메모리 계층"
 
 # 메모리 계층
 
-<img src="./memory_opcode.PNG" width="500px" height="400px" title="memory_opcode"/>
+<img src="/assets/images/2021-10-28-memory_hierarchy/메모리계층.png" height="400px" title="메모리계층"/>
 
 </br>
 
